@@ -1,0 +1,23 @@
+﻿Part 2: Modifying CFS scheduler WriteUp
+
+For doing this project,we implemented the following steps:
+
+1. We created a new system called rtnice.c in rtnice folder. We also made a makefile for it.
+2. We created a u64 (unsigned 64 bit) variable rtnice in the include/linux/sched.h file in sched_entity.
+3. Then we initialised the rtnice variable to 0 in the kernel/sched/core.c in the sched_fork function.
+4. Then we made 2 changed in the kernel/sched/fair.c file.
+5. In the entity_before function, we included if conditions to give priority to this rtnice value.
+6. In the update_curr function, we included if conditions to update the value of rtnice as the processes other values like vruntime are updated.
+
+The changes made effectively do the following:
+	All processes are effectively given rtnice value of 0 initially.
+	Any process rtnice can be changed using the system call we made which changes any processes rtnice value
+	The comparator function of the rb tree of the kernel will first compare according to our rtnice value and then on vruntime, which is the normal value used for comparision.
+	Our process is thus given higher priority always and executed first based on the value of rtnice given.
+
+The rtnice system call contains two inputs, rtnice value which is supplied by the user and the process id which is supplied as input by the user.
+
+Output contains the time the process finishes in and the process name.
+Error handled include invalid process id and invalid rtnice values.
+
+We have shared two test cases for the same. In the first, we create two processes using the fork function and perform some heavy tasks and check to see if our rtnice value process is done first or not. In the second one we check to see if our program returns error values for wrong input.
